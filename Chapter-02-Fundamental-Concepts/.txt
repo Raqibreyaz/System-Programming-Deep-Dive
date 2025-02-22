@@ -1,0 +1,1 @@
+you said malloc dynamically allocates memory, so while the start of the process how kernel knows that this process should be given this part of ram since you know there is a virtual address space of each proces
