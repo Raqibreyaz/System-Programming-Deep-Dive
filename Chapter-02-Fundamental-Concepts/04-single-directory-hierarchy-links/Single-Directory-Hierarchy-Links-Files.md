@@ -23,6 +23,10 @@ Unlike Windows, which has separate directory structures for each disk (C:, D:, e
 │   ├── group
 ```
 
+---
+![Single Directory Hierarchy](./assets/Single-Directory_hierarchy.png)
+---
+
 - The **root (********`/`********)** directory is at the top.
 - Everything (files, directories, devices) exists **under this single hierarchy**.
 - No concept of different drives (like C: or D:).

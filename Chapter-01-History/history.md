@@ -37,6 +37,10 @@
 - **POSIX 1003.1-2001 & SUSv3 (2001)** – Merged earlier UNIX standards.
 - **POSIX 1003.1-2008 & SUSv4 (2008)** – Latest UNIX standard revision.
 
+---
+![Relationship Unix and C standard](./assets/Unix-And-C-Standard-Relation.png)
+---
+
 ### 6️⃣ Linux Distribution Model vs. Commercial UNIX
 - Unlike **commercial UNIX** (*System V, BSD*), **Linux** has no official distribution.
 - Different **Linux vendors** package their own distributions (**Ubuntu, Fedora, Debian**, etc.).
