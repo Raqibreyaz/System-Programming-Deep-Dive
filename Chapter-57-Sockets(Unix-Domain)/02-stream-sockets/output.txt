@@ -1,0 +1,17 @@
+this is my text to write in the output.txt file, i am feeling happy for my code
+
+received 10 bytes data
+
+received 10 bytes data
+
+received 10 bytes data
+
+received 10 bytes data
+
+received 10 bytes data
+
+received 10 bytes data
+
+received 10 bytes data
+
+received 10 bytes data
