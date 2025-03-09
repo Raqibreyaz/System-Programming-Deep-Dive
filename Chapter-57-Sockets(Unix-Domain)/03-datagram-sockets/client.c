@@ -10,12 +10,12 @@
 #include <string.h>
 
 #define SOCKSTREAM "./socket-file"
-#define BUFFER_SIZE 100
+#define BUFFER_SIZE 10
 
 int main(int argc, char const *argv[])
 {
     int cfd;
-    if ((cfd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
+    if ((cfd = socket(AF_UNIX, SOCK_DGRAM, 0)) == -1)
     {
         perror("socket file descriptor");
         return 1;
@@ -28,13 +28,6 @@ int main(int argc, char const *argv[])
 
     addr.sun_family = AF_UNIX;
     strncpy(addr.sun_path, SOCKSTREAM, sizeof(addr.sun_path) - 1);
-
-    // connect to peer server
-    if (connect(cfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_un)) == -1)
-    {
-        perror("connect");
-        return -1;
-    }
 
     // while (1)
     // {
@@ -55,7 +48,7 @@ int main(int argc, char const *argv[])
 
         // sending data to server
         ssize_t bytes_sent;
-        if ((bytes_sent = send(cfd, buffer, bytes_read, 0)) == -1)
+        if ((bytes_sent = sendto(cfd, buffer, bytes_read, 0, (struct sockaddr *)&addr, sizeof(struct sockaddr_un))) == -1)
         {
             perror("failed to send");
         }

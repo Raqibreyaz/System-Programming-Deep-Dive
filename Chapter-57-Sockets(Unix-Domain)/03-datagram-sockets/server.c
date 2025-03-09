@@ -10,7 +10,6 @@
 #include <string.h>
 
 #define SOCKSTREAM "./socket-file"
-#define BACKLOG_COUNT 10
 #define BUFFER_SIZE 10
 
 int main(int argc, char const *argv[])
@@ -20,61 +19,47 @@ int main(int argc, char const *argv[])
     remove(SOCKSTREAM); //-1 for not found, 0 for success
 
     int sfd;
-    if ((sfd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
+    struct sockaddr_un server_addr, client_addr;
+    socklen_t addr_len = sizeof(struct sockaddr_un);
+
+    if ((sfd = socket(AF_UNIX, SOCK_DGRAM, 0)) == -1)
     {
         perror("socket file descriptor");
         return 1;
     }
 
-    struct sockaddr_un addr;
-    memset(&addr, 0, sizeof(struct sockaddr_un)); // put 0 in all
+    memset(&server_addr, 0, addr_len); // put 0 in all
+    memset(&client_addr, 0, addr_len);
 
-    addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, SOCKSTREAM, sizeof(addr.sun_path) - 1);
+    server_addr.sun_family = AF_UNIX;
+    strncpy(server_addr.sun_path, SOCKSTREAM, sizeof(server_addr.sun_path) - 1);
 
-    if (bind(sfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_un)) == -1)
+    server_addr.sun_path[strlen(server_addr.sun_path)] = '\0';
+
+    if (bind(sfd, (struct sockaddr *)&server_addr, sizeof(struct sockaddr_un)) == -1)
     {
         perror("bind");
         return 1;
     }
 
-    if (listen(sfd, BACKLOG_COUNT) == -1)
+    while (1)
     {
-        perror("listen");
-        return 1;
-    }
+        char buffer[BUFFER_SIZE + 1];
 
-    // while (1)
-    // {
-    int cfd;
-    char buffer[BUFFER_SIZE + 1];
-    ssize_t bytes_received;
+        printf("waiting for client data\n");
 
-    // accept client connection
-    if ((cfd = accept(sfd, NULL, NULL)) == -1)
-    {
-        perror("accept");
-        return 1;
-    }
+        // receive data from client
+        ssize_t received_bytes = recvfrom(sfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&client_addr, &addr_len);
 
-    // receive data from client
-    while ((bytes_received = recv(cfd, buffer, BUFFER_SIZE, 0)) > 0)
-    {
-        buffer[bytes_received] = '\0';
-        printf("\nreceived %ld bytes data\n", bytes_received);
+        printf("got %d bytes data\n", (int)received_bytes);
 
-        // writing the received data to terminal or redirected file
-        if (write(STDOUT_FILENO, buffer, bytes_received) == -1)
+        buffer[received_bytes] = '\0';
+
+        if (write(STDOUT_FILENO, buffer, received_bytes) == -1)
         {
-            perror("write");
-            return 1;
+            perror("bind");
         }
     }
-    if (bytes_received == -1)
-    {
-        perror("receive");
-    }
-    // }
 
     close(sfd);
 
