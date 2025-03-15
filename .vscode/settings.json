@@ -1,6 +1,7 @@
 {
-	"files.associations": {
-		"signal.h": "c"
-	},
-	"prettier.useTabs": false
+  "files.associations": {
+    "signal.h": "c",
+    "netdb.h": "c"
+  },
+  "prettier.useTabs": false
 }
