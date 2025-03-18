@@ -4,10 +4,6 @@
 // close
 // printf
 #include "custom-utilities.h"
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <arpa/inet.h>
 
 void fatalWithClose(int fd, const char *msg)
 {
@@ -20,15 +16,15 @@ void fatal(const char *msg)
     perror(msg);
     exit(EXIT_FAILURE);
 }
-void exitWithMessage(const char *msg)
+void exitWithMessage(const char *__restrict__ msg)
 {
-    fprintf(stderr, msg);
+    printf(msg);
     exit(EXIT_FAILURE);
 }
 
-void exitAndCloseWithMessage(int fd, const char *msg)
+void exitAndCloseWithMessage(int fd, const char *__restrict__ msg)
 {
-    fprintf(stderr, msg);
+    printf(msg);
     close(fd);
     exit(EXIT_FAILURE);
 }

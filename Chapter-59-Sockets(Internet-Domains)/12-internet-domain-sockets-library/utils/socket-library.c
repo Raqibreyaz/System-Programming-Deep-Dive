@@ -5,7 +5,7 @@ ssize_t sendMessage(int fd, int flags, const char *format, ...)
 {
     // "this is a %dth message \n",3
     va_list args;
-    va_start(args, flags);
+    va_start(args, format);
 
     // calculating the size
     size_t size = vsnprintf(NULL, 0, format, args) + 1; // +1 for \0
@@ -48,6 +48,18 @@ ssize_t sendMessage(int fd, int flags, const char *format, ...)
     return bytes_sent;
 }
 
+ssize_t recvMessage(int fd, int flags, char *buffer, size_t bufferSize)
+{
+    // receive data
+    ssize_t bytes_read = recv(fd, buffer, bufferSize - 1, flags);
+
+    // make the buffer null terminated
+    buffer[bytes_read] = '\0';
+
+    // return the final read bytes
+    return bytes_read;
+}
+
 // create a socket
 int createSocket(int domain, int type, int protocol)
 {
@@ -58,14 +70,14 @@ int createSocket(int domain, int type, int protocol)
 }
 
 // bind the socket with the provided address
-void bindWithAddress(int sfd, struct sockaddr *addr, size_t addrLen)
+void bindWithAddress(int sfd, struct sockaddr *addr, socklen_t addrLen)
 {
     if (bind(sfd, addr, addrLen) == -1)
         fatalWithClose(sfd, "bind");
 }
 
 // connect to local/remote server
-void connectWithServer(int sfd, struct sockaddr *addr, size_t addrLen)
+void connectWithServer(int sfd, struct sockaddr *addr, socklen_t addrLen)
 {
     if (connect(sfd, addr, addrLen) == -1)
         fatalWithClose(sfd, "connect");
@@ -78,7 +90,7 @@ int createConnection(
     const char *ip,
     struct sockaddr_storage *server_addr)
 {
-    int cfd = createSocket(domain, type,0);
+    int cfd = createSocket(domain, type, 0);
     socklen_t addrLen;
 
     memset(server_addr, 0, sizeof(struct sockaddr_storage));
@@ -86,6 +98,7 @@ int createConnection(
     if (domain == AF_INET)
     {
         struct sockaddr_in *addr4 = (struct sockaddr_in *)server_addr;
+        addrLen = sizeof(struct sockaddr_in);
         addr4->sin_family = domain;
         addr4->sin_port = htons(port);
         convertToBinaryIP(cfd, domain, ip, (struct sockaddr *)addr4);
@@ -93,6 +106,7 @@ int createConnection(
     else if (domain == AF_INET6)
     {
         struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)server_addr;
+        addrLen = sizeof(struct sockaddr_in6);
         addr6->sin6_family = domain;
         addr6->sin6_port = htons(port);
         convertToBinaryIP(cfd, domain, ip, (struct sockaddr *)addr6);
@@ -113,7 +127,7 @@ void listenToClient(int sfd, int nClients)
 }
 
 // accept client connection
-int acceptClient(int sfd, struct sockaddr *addr, size_t *addrLen)
+int acceptClient(int sfd, struct sockaddr *__restrict__ addr, socklen_t *__restrict__ addrLen)
 {
     int cfd;
     if ((cfd = accept(sfd, addr, addrLen)) == -1)
@@ -148,7 +162,7 @@ int createServer(
         addr4->sin_family = domain;
         addr4->sin_port = htons(port);
 
-        convertToBinaryIP(sfd, domain, ip, &addr4->sin_addr);
+        convertToBinaryIP(sfd, domain, ip, (struct in_addr *)&addr4->sin_addr);
     }
 
     // handle ipv6 case
@@ -159,7 +173,7 @@ int createServer(
         addr6->sin6_family = domain;
         addr6->sin6_port = htons(port);
 
-        convertToBinaryIP(sfd, domain, ip, &addr6->sin6_addr);
+        convertToBinaryIP(sfd, domain, ip, (struct in6_addr *)&addr6->sin6_addr);
     }
 
     // throw error when unknow domain encountered
