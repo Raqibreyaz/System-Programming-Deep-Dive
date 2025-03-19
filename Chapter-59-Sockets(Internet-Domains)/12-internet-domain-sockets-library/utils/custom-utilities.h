@@ -9,9 +9,24 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 
+// will print error and close the file descriptor and exit
 void fatalWithClose(int fd, const char *msg);
+
+// will print error and exit
 void fatal(const char *msg);
+
+// will print message and exit
 void exitWithMessage(const char *__restrict__ msg);
+
+// will print message and close file descriptor and exit
 void exitAndCloseWithMessage(int fd, const char *__restrict__ msg);
+
+// will convert the string ip to binary
 void convertToBinaryIP(int fd, int domain, const char *ip, void *addr);
+
+// will convert the binary ip to string
 const char *convertBinaryIPToString(int fd, int domain, void *addr, char *buffer, socklen_t bufferSize);
+
+int extractNumber(const char *num, size_t len);
+
+int isIpAddress(int domain, const char *str);

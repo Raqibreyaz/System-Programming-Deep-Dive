@@ -1,26 +1,47 @@
 CC = gcc
-CFLAGS = -Wall -g
+CFLAGS = -Wall -Wextra -g -MMD -MP
+VPATH = utils
+
+# Directories
+OBJDIR = build
+SRCDIR = .
+UTILSDIR = utils
 
 # Executables
-client: client.o utils/socket-library.o utils/custom-utilities.o
-	$(CC) $(CFLAGS) $^ -o $@
-
-server: server.o utils/socket-library.o utils/custom-utilities.o
-	$(CC) $(CFLAGS) $^ -o $@
+BINARIES = client server
 
 # Object Files
-client.o: client.c utils/socket-library.h
+CLIENT_OBJS = $(OBJDIR)/client.o $(OBJDIR)/socket-library.o $(OBJDIR)/custom-utilities.o
+SERVER_OBJS = $(OBJDIR)/server.o $(OBJDIR)/socket-library.o $(OBJDIR)/custom-utilities.o
+
+# Create object directory if not exists
+$(shell mkdir -p $(OBJDIR))
+
+# Build Targets
+all: $(BINARIES)
+
+client: $(CLIENT_OBJS)
+	$(CC) $(CFLAGS) $^ -o $@
+
+server: $(SERVER_OBJS)
+	$(CC) $(CFLAGS) $^ -o $@
+
+# Object File Rules
+$(OBJDIR)/client.o: $(SRCDIR)/client.c $(UTILSDIR)/socket-library.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-server.o: server.c utils/socket-library.h
+$(OBJDIR)/server.o: $(SRCDIR)/server.c $(UTILSDIR)/socket-library.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-utils/socket-library.o: utils/socket-library.c utils/socket-library.h utils/custom-utilities.h
+$(OBJDIR)/socket-library.o: $(UTILSDIR)/socket-library.c $(UTILSDIR)/socket-library.h $(UTILSDIR)/custom-utilities.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-utils/custom-utilities.o: utils/custom-utilities.c utils/custom-utilities.h
+$(OBJDIR)/custom-utilities.o: $(UTILSDIR)/custom-utilities.c $(UTILSDIR)/custom-utilities.h
 	$(CC) $(CFLAGS) -c $< -o $@
+
+# Include dependencies
+-include $(OBJDIR)/*.d
 
 # Clean
 clean:
-	rm -f client server client.o server.o utils/*.o
+	rm -rf $(BINARIES) $(OBJDIR)/*.o $(OBJDIR)/*.d

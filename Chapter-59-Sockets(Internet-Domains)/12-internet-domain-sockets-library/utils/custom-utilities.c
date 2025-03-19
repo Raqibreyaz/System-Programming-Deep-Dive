@@ -42,3 +42,38 @@ const char *convertBinaryIPToString(int fd, int domain, void *addr, char *buffer
         fatalWithClose(fd, "inet_ntop");
     return ip;
 }
+
+int extractNumber(const char *num, size_t len)
+{
+
+    if (num[0] < '0' || num[0] > '9')
+        return -1;
+
+    int extracted_num = 0;
+    int place_value = 1;
+    printf("len: %d\n", (int)len);
+
+    for (int i = len - 1; i >= 0; i--)
+    {
+        int digit = (int)(num[i] - '0');
+        printf("digit: %d\n", digit);
+        extracted_num = (int)(digit * place_value + extracted_num);
+        printf("extracted num: %d \n", extracted_num);
+        place_value *= 10;
+    }
+    return extracted_num;
+}
+
+// check if a string is an ip or not
+int isIpAddress(int domain, const char *str)
+{
+    struct sockaddr_storage addr;
+
+    // for ipv4 , if !ip then inetpton will return 0
+    if (domain == AF_INET)
+    {
+        return !inet_pton(domain, str, (struct sockaddr_in *)&addr) == 0;
+    }
+
+    return !inet_pton(domain, str, (struct sockaddr_in6 *)&addr) == 0;
+}

@@ -57,7 +57,7 @@ int main(int argc, char const *argv[])
         // for storing the address string
         char ipstr[100] = "";
 
-        // extracting the address string from bianry address
+        // extracting the address string from binary address
         inet_ntop(temp->ai_family, addr, ipstr, sizeof(ipstr));
 
         fprintf(stdout, "%s: %s\n", ipversion, ipstr);
